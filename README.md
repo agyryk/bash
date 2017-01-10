@@ -1,0 +1,2 @@
+# bash
+everyday scripts
