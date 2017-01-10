@@ -1,0 +1,20 @@
+
+PERFRUNNER_REPO="/Users/oleksandr.gyryk/couchbase/ssh-perfrunner/perfrunner/"
+COLUMNS=1
+
+select CLUSTER in $( ls ${PERFRUNNER_REPO}clusters/ | grep "spec" )
+do
+    AUTH=$(cat ${PERFRUNNER_REPO}clusters/${CLUSTER} | grep "ssh = " | sed 's/ssh = //')
+    AUTHS=(`echo $AUTH | tr ':' ' '`)
+    USR=${AUTHS[0]}
+    PWD=${AUTHS[1]}
+    
+    select SERVER in $(cat ${PERFRUNNER_REPO}clusters/${CLUSTER}  | sed 's/:8091,/--/' | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}.*" )
+        do
+            SERVERIP=(`echo $SERVER | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}"`) 
+            echo "Logging to" ${SERVERIP}":"
+            sshpass -p $PWD ssh  $USR@$SERVERIP
+            break;
+        done
+        break;
+done
